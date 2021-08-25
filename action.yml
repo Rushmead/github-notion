@@ -3,3 +3,10 @@ description: 'Update Notion when there is a new Github issue or an update to it'
 runs:
     using: 'node12'
     main: 'dist/index.js'
+inputs:
+    dbID:
+        description: "The id of the table inside the notion page"
+        required: true
+    token:
+        description: "The token for Notion"
+        required: true
