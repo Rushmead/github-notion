@@ -3079,12 +3079,6 @@ async function createIssue(event) {
               "start": event.created_at?event.created_at.replace("Z", "+00:00"):null
           }
       },
-      "Assignee": {
-          "type": "select",
-          "select": {
-              "name": event.assignee.login
-          }
-      },
       "Title": {
           "id": "title",
           "type": "title",
@@ -3106,6 +3100,15 @@ async function createIssue(event) {
         "type": "url",
         "url": event.pull_request.html_url
     };
+  }
+
+  if(event.assignee != null) {
+    body.properties["Assignee"] = {
+      "type": "select",
+      "select": {
+          "name": event.assignee.login
+      }
+    }
   }
   
   if (event.closed_at) {
