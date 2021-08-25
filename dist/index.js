@@ -3045,10 +3045,6 @@ async function createIssue(event) {
       "database_id": dbID
     },
     "properties": {
-      "PR": {
-          "type": "url",
-          "url": event.pull_request.html_url
-      },
       "Issue Number": {
           "type": "number",
           "number": event.number
@@ -3105,6 +3101,13 @@ async function createIssue(event) {
     }
   }
 
+  if(event.pull_request) {
+    body.properties["PR"] = {
+        "type": "url",
+        "url": event.pull_request.html_url
+    };
+  }
+  
   if (event.closed_at) {
     body["Closed at"] = {
       "type": "date",
