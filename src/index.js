@@ -14,7 +14,7 @@ async function createIssue(event) {
   const token = core.getInput('token')
   const dbID = core.getInput('dbID')
   const config = {
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}`, "Notion-Version": "2021-08-16" }
   };
 
   const body = 
