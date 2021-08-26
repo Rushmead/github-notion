@@ -2,26 +2,48 @@ const core = require("@actions/core");
 const fs = require("fs");
 const axios = require("axios");
 const notionPageEndpoint = 'https://api.notion.com/v1/pages'
+const token = core.getInput('token')
+const dbID = core.getInput('dbID')
 
 async function createOrUpdateInNotion() {
   let event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf-8"));
   console.log(JSON.stringify(event, null, 2))
   event = event["issue"];
-  const respo = await createIssue(event);
+  let existingPage = await findIssue(event.number);
+  const respo = await createIssue(event, existingPage);
 }
 
-async function createIssue(event) {
-  const token = core.getInput('token')
-  const dbID = core.getInput('dbID')
+async function findIssue(issueNumber) {
   const config = {
     headers: { Authorization: `Bearer ${token}`, "Notion-Version": "2021-05-13" }
   };
+  const body = {
+    filter: {
+      property: "Issue Number",
+      text: {
+        equals: issueNumber
+      }
+    }
+  };
+  try {
+    const resp = await axios.default.post(`https://api.notion.com/v1/databases/${dbID}/query`, body, config);
+    if(resp.data.results.length === 0){
+      return null;
+    } else {
+      return resp.data.results[0];
+    }
+  } catch (e) {
+    console.log(e)
+  }
+  return null;
+}
 
-  const body = 
+async function createIssue(event, existingPage=null) {
+  const config = {
+    headers: { Authorization: `Bearer ${token}`, "Notion-Version": "2021-05-13" }
+  };
+  let body = 
   {
-    "parent": {
-      "database_id": dbID
-    },
     "properties": {
       "Issue Number": {
           "type": "number",
@@ -115,11 +137,23 @@ async function createIssue(event) {
       }
     }
   }
+  
+  if(existingPage == null) {
+    body["parent"] = {
+      "database_id": dbID
+    };
+  }
 
   try {
-    const resp = await axios.default.post(notionPageEndpoint, body, config);
-    console.log("Response", JSON.stringify(resp.data, null, 2))
-    return resp
+    if(existingPage == null){
+      const resp = await axios.default.post(notionPageEndpoint, body, config);
+      console.log("Response", JSON.stringify(resp.data, null, 2))
+      return resp
+    } else {
+      const resp = await axios.default.patch(`https://api.notion.com/v1/pages/${existingPage.id}`, body, config);
+      console.log("Response", JSON.stringify(resp.data, null, 2))
+      return resp
+    }
   } catch (e) {
     console.log(e)
   }
