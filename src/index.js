@@ -7,7 +7,6 @@ const dbID = core.getInput('dbID')
 
 async function createOrUpdateInNotion() {
   let event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf-8"));
-  console.log(JSON.stringify(event, null, 2))
   event = event["issue"];
   let existingPage = await findIssue(event.number);
   const respo = await createIssue(event, existingPage);
@@ -27,6 +26,7 @@ async function findIssue(issueNumber) {
   };
   try {
     const resp = await axios.default.post(`https://api.notion.com/v1/databases/${dbID}/query`, body, config);
+    console.log("Query Response", JSON.stringify(resp.data, null, 2))
     if(resp.data.object === "list"){
       if(resp.data.results.length === 0){
         return null;
@@ -151,11 +151,11 @@ async function createIssue(event, existingPage=null) {
   try {
     if(existingPage == null){
       const resp = await axios.default.post(notionPageEndpoint, body, config);
-      console.log("Response", JSON.stringify(resp.data, null, 2))
+      console.log("Create Response", JSON.stringify(resp.data, null, 2))
       return resp
     } else {
       const resp = await axios.default.patch(`https://api.notion.com/v1/pages/${existingPage.id}`, body, config);
-      console.log("Response", JSON.stringify(resp.data, null, 2))
+      console.log("Update Response", JSON.stringify(resp.data, null, 2))
       return resp
     }
   } catch (e) {
