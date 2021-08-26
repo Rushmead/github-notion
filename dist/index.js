@@ -3042,7 +3042,7 @@ async function findIssue(issueNumber) {
   const body = {
     filter: {
       property: "Issue Number",
-      text: {
+      number: {
         equals: issueNumber
       }
     }
