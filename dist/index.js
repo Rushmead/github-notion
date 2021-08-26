@@ -3053,7 +3053,7 @@ async function findIssue(issueNumber) {
       if(resp.data.results.length === 0){
         return null;
       } else {
-        return resp.data.reuslts[0];
+        return resp.data.results[0];
       }
     } else if(resp.data.object === "page"){
       return resp.data;
