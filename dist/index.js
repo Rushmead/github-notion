@@ -3049,10 +3049,14 @@ async function findIssue(issueNumber) {
   };
   try {
     const resp = await axios.default.post(`https://api.notion.com/v1/databases/${dbID}/query`, body, config);
-    if(resp.data.results.length === 0){
-      return null;
-    } else {
-      return resp.data.results[0];
+    if(resp.data.object === "list"){
+      if(resp.data.results.length === 0){
+        return null;
+      } else {
+        return resp.data.reuslts[0];
+      }
+    } else if(resp.data.object === "page"){
+      return resp.data;
     }
   } catch (e) {
     console.log(e)
